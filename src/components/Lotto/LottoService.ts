@@ -2,12 +2,34 @@ import { AppError, Constants } from '../../utils';
 
 import { getDBInstance } from '../../configs';
 
-const getLottoList = async ({ attributes }: { attributes?: string[]; limit?: number; offset?: number }) => {
+const getLotto = async (lottoNo: number, attributes?: string[]) => {
+	try {
+		let result = await getDBInstance()
+			.get({
+				TableName: Constants.TABLE_NAMES.LOTTO,
+				Key: {
+					no: lottoNo,
+				},
+				AttributesToGet: attributes,
+			})
+			.promise();
+		return result.Item;
+	} catch (err) {
+		new AppError('SgetLotto', err.message, err.stack);
+		return {};
+	}
+};
+
+const getLottoList = async ({ attributes, startNo = 0 }: { attributes?: string[]; startNo?: any }) => {
 	try {
 		let result = await getDBInstance()
 			.scan({
 				TableName: Constants.TABLE_NAMES.LOTTO,
 				AttributesToGet: attributes,
+				FilterExpression: 'roundNo > :roundNo',
+				ExpressionAttributeValues: {
+					':roundNo': startNo,
+				},
 			})
 			.promise();
 		return result.Items;
@@ -30,4 +52,4 @@ const insertLotto = async (params: {}) => {
 	}
 };
 
-export const LottoService = { getLottoList, insertLotto };
+export const LottoService = { getLottoList, insertLotto, getLotto };

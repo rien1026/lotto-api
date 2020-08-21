@@ -46,6 +46,7 @@ app.use(router.allowedMethods());
 
 //users
 router.get('/app/lottos', LottoController.getLottoList);
+router.get('/app/lottos/:lottoNo', LottoController.getLotto);
 
 if (Constants.PROD_MODE === 'local') {
 	app.listen(3000, () => {
